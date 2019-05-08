@@ -42,7 +42,15 @@ class Chef::Handler::Slack < Chef::Handler
           if run_status.success?
             slack_message(" :white_check_mark: Chef client run #{run_status_human_readable} on #{run_status.node.name} #{run_status_detail(webhook['detail_level'])}", webhook['url']) unless webhook['fail_only']
           else
-            slack_message(" :skull: <!channel> Chef client run #{run_status_human_readable} on #{run_status.node.name} #{run_status_detail(webhook['detail_level'])}", webhook['url'])
+            message_content = "Chef client run #{run_status_human_readable} on #{run_status.node.name} #{run_status_detail(webhook['detail_level'])}"
+            prefix = ':skull:'
+            webhook_url = webhook['url']
+
+            if webhook['disable_at_channel'] == true
+              slack_message(" #{prefix} #{message_content}", webhook_url)
+            else
+              slack_message(" #{prefix} <!channel> #{message_content}", webhook_url)
+            end
           end
         end
       end
